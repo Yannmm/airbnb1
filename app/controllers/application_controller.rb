@@ -1,8 +1,16 @@
 class ApplicationController < ActionController::Base
   helper_method :current_session
   helper_method :current_user
-
   helper_method :require_authentication
+  helper_method :authenticated?
+
+  around_action :switch_locale
+
+  def switch_locale(&action)
+    locale = params[:locale] || I18n.default_locale
+    I18n.with_locale(locale, &action)
+  end
+
 
   private
 
@@ -16,6 +24,10 @@ class ApplicationController < ActionController::Base
 
   def current_user
     current_session&.user
+  end
+
+  def authenticated?
+    current_user.present?
   end
 
   def require_authentication
